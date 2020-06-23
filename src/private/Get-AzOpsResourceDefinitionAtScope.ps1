@@ -52,6 +52,7 @@ function Get-AzOpsResourceDefinitionAtScope {
         Test-AzOpsVariables
     }
     process {
+       
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message ("Initiating function " + $MyInvocation.MyCommand + " process")
         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Processing $scope"
         Write-AzOpsLog -Level Information -Topic "pwsh" -Message "AzOpsResourceDefinitionAtScope: $scope"
@@ -194,7 +195,7 @@ function Get-AzOpsResourceDefinitionAtScope {
                         https://github.com/Azure/azure-powershell/issues/9448
                         $ChildOfManagementGroups | Foreach-Object -ThrottleLimit $env:AzOpsThrottleLimit -Parallel {
                     #>
-                    $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 1 -Parallel {
+                    $ChildOfManagementGroups | Foreach-Object -ThrottleLimit 20 -Parallel {
                         # region Importing module
                         # We need to import all required modules and declare variables again because of the parallel runspaces
                         # https://devblogs.microsoft.com/powershell/powershell-foreach-object-parallel-feature/
@@ -215,69 +216,127 @@ function Get-AzOpsResourceDefinitionAtScope {
                         Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Enumerating Child Of Management Group ID: $($child.id) and name: $($child.displayName)"
                         Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
                     }
+                    # $ChildOfManagementGroups | Foreach-Object {
+                    #     $child = $_
+                    #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Enumerating Child Of Management Group ID: $($child.id) and name: $($child.displayName)"
+                    #     Get-AzOpsResourceDefinitionAtScope -scope $child.Id -SkipPolicy:$SkipPolicy -SkipResourceGroup:$SkipResourceGroup -ErrorAction Stop -Verbose:$VerbosePreference
+                    # }
+
                 }
                 ConvertTo-AzOpsState -Resource ($Global:AzOpsAzManagementGroup | Where-Object { $_.Name -eq $scope.managementgroup })
             }
         }
         # Process policies and policy assignments for resourcegroups, subscriptions and Management Groups
         if ($scope.Type -in 'resourcegroups', 'subscriptions', 'managementgroups' -and -not($SkipPolicy)) {
-            # Process policy definitions
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Definition at scope $scope"
+
+            Write-Host "Iterating $($child.Id)"
             $currentPolicyDefinitionsInAzure = @()
-            $serializedPolicyDefinitionsInAzure = @()
-            $currentPolicyDefinitionsInAzure = Get-AzOpsPolicyDefinitionAtScope -scope $scope
-            foreach ($policydefinition in $currentPolicyDefinitionsInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
-                # Convert policyDefinition to AzOpsState
-                ConvertTo-AzOpsState -CustomObject $policydefinition
-                # Serialize policyDefinition in original format and add to variable for full export
-                $serializedPolicyDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policydefinition -ReturnObject -ExportRawTemplate
-            }
-
-            # Process policySetDefinitions (initiatives)
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Set Definition at scope $scope"
             $currentPolicySetDefinitionsInAzure = @()
-            $serializedPolicySetDefinitionsInAzure = @()
-            $currentPolicySetDefinitionsInAzure = Get-AzOpsPolicySetDefinitionAtScope -scope $scope
-            foreach ($policysetdefinition in $currentPolicySetDefinitionsInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
-                # Convert policySetDefinition to AzOpsState
-                ConvertTo-AzOpsState -CustomObject $policysetdefinition
-                # Serialize policySetDefinition in original format and add to variable for full export
-                $serializedPolicySetDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policysetdefinition -ReturnObject -ExportRawTemplate
-            }
+            $currentPolicyAssignmentInAzure  = @()
+            $currentPolicyDefinitionsInAzureJob = Start-Job -Name "currentPolicyDefinitionsInAzure-$($scope.name)" -ScriptBlock {
+                    param ($scope)
+                    $RootPath = (Split-Path $using:PSScriptRoot -Parent)
+                    Import-Module $RootPath/AzOps.psd1 -Force
+                    Get-ChildItem -Path $RootPath\private -Include *.ps1 -Recurse -Force | ForEach-Object { . $_.FullName }
+                    Write-Host "Path: $path"
+                    $global:AzOpsState = $using:global:AzOpsState
+                    $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
+                    $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
+                    $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
+                    Get-AzOpsPolicyDefinitionAtScope -scope $scope -Verbose
+                } -InitializationScript {
+                } -ArgumentList $scope
+            $currentPolicySetDefinitionsInAzureJob = Start-Job -Name "currentPolicySetDefinitionsInAzure-$($scope.name)" -ScriptBlock {
+                    param ($scope)
+                    $RootPath = (Split-Path $using:PSScriptRoot -Parent)
+                    Import-Module $RootPath/AzOps.psd1 -Force
+                    Get-ChildItem -Path $RootPath\private -Include *.ps1 -Recurse -Force | ForEach-Object { . $_.FullName }
+                    Write-Host "Path: $path"
+                    $global:AzOpsState = $using:global:AzOpsState
+                    $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
+                    $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
+                    $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
+                    Get-AzOpsPolicySetDefinitionAtScope -scope $scope -Verbose
+                } -InitializationScript {
+                } -ArgumentList $scope
+            $currentPolicyAssignmentInAzureJob = Start-Job -Name "currentPolicyAssignmentInAzure-$($scope.name)"  -ScriptBlock {
+                    param ($scope)
+                    $RootPath = (Split-Path $using:PSScriptRoot -Parent)
+                    Import-Module $RootPath/AzOps.psd1 -Force
+                    Get-ChildItem -Path $RootPath\private -Include *.ps1 -Recurse -Force | ForEach-Object { . $_.FullName }
+                    Write-Host "Path: $path"
+                    $global:AzOpsState = $using:global:AzOpsState
+                    $global:AzOpsStateConfig = $using:global:AzOpsStateConfig
+                    $global:AzOpsAzManagementGroup = $using:global:AzOpsAzManagementGroup
+                    $global:AzOpsSubscriptions = $using:global:AzOpsSubscriptions
+                    Get-AzOpsPolicyAssignmentAtScope -scope $scope -Verbose
+                } -InitializationScript {
+                } -ArgumentList $scope
 
-            # Process policy assignments
-            Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Assignment at scope $scope"
-            $currentPolicyAssignmentInAzure = @()
-            $serializedPolicyAssignmentInAzure = @()
-            $currentPolicyAssignmentInAzure = Get-AzOpsPolicyAssignmentAtScope -scope $scope
-            foreach ($policyAssignment in $currentPolicyAssignmentInAzure) {
-                Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
-                # Convert policyAssignment to AzOpsState
-                ConvertTo-AzOpsState -CustomObject $policyAssignment
-                # Serialize policyAssignment in original format and add to variable for full export
-                $serializedPolicyAssignmentInAzure += ConvertTo-AzOpsState -Resource $policyAssignment -ReturnObject -ExportRawTemplate
-            }
-            # For subscriptions and Management Groups, export all policy/policyset/policyassignments at scope in one file
-            if ($scope.Type -in 'subscriptions', 'managementgroups') {
-                # Get statefile from scope
-                $parametersJson = Get-Content -Path $scope.statepath | ConvertFrom-Json -Depth 100
-                # Create property bag and add resources at scope
-                $propertyBag = [ordered]@{
-                    'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
-                    'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
-                    'policyAssignments'    = @($serializedPolicyAssignmentInAzure)
-                    'roleDefinitions'      = $null
-                    'roleAssignments'      = $null
-                }
-                # Add property bag to parameters json
-                $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
-                # Export state file with properties at scope
-                ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
-            }
+            Wait-Job -Name @("currentPolicyDefinitionsInAzure-$($scope.name)", "currentPolicySetDefinitionsInAzure-$($scope.name)", "currentPolicyAssignmentInAzure-$($scope.name)")
+            
+            #$currentPolicyDefinitionsInAzure  = $currentPolicyDefinitionsInAzureJob | Receive-Job -Wait
+            #Write-Host "$scope count is $($currentPolicyDefinitionsInAzure.Count)"
+            # Process policy definitions
+            #Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Definition at scope $scope"
+            # Write-Host "Iterating Policy Definition at scope $scope"
+            # $currentPolicyDefinitionsInAzure = @()
+            # $serializedPolicyDefinitionsInAzure = @()
+            # $currentPolicyDefinitionsInAzure = Get-AzOpsPolicyDefinitionAtScope -scope $scope
+            # foreach ($policydefinition in $currentPolicyDefinitionsInAzure) {
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policydefinition.resourceid)"
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+            #     # Convert policyDefinition to AzOpsState
+            #     ConvertTo-AzOpsState -CustomObject $policydefinition
+            #     # Serialize policyDefinition in original format and add to variable for full export
+            #     $serializedPolicyDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policydefinition -ReturnObject -ExportRawTemplate
+            # }
+
+            # # Process policySetDefinitions (initiatives)
+            # #Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Set Definition at scope $scope"
+            # Write-Host "Iterating Policy Set Definition at scope $scope"
+            # $currentPolicySetDefinitionsInAzure = @()
+            # $serializedPolicySetDefinitionsInAzure = @()
+            # $currentPolicySetDefinitionsInAzure = Get-AzOpsPolicySetDefinitionAtScope -scope $scope
+            # foreach ($policysetdefinition in $currentPolicySetDefinitionsInAzure) {
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policyset definition at scope $scope for $($policysetdefinition.resourceid)"
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Serializing AzOpsState for $scope at $($scope.statepath)"
+            #     # Convert policySetDefinition to AzOpsState
+            #     ConvertTo-AzOpsState -CustomObject $policysetdefinition
+            #     # Serialize policySetDefinition in original format and add to variable for full export
+            #     $serializedPolicySetDefinitionsInAzure += ConvertTo-AzOpsState -Resource $policysetdefinition -ReturnObject -ExportRawTemplate
+            # }
+
+            # # Process policy assignments
+            # Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating Policy Assignment at scope $scope"
+            # Write-Host  "Iterating Policy Assignment at scope $scope"
+            # $currentPolicyAssignmentInAzure = @()
+            # $serializedPolicyAssignmentInAzure = @()
+            # $currentPolicyAssignmentInAzure = Get-AzOpsPolicyAssignmentAtScope -scope $scope
+            # foreach ($policyAssignment in $currentPolicyAssignmentInAzure) {
+            #     Write-AzOpsLog -Level Verbose -Topic "pwsh" -Message "Iterating through policy definitition at scope $scope for $($policyAssignment.resourceid)"
+            #     # Convert policyAssignment to AzOpsState
+            #     ConvertTo-AzOpsState -CustomObject $policyAssignment
+            #     # Serialize policyAssignment in original format and add to variable for full export
+            #     $serializedPolicyAssignmentInAzure += ConvertTo-AzOpsState -Resource $policyAssignment -ReturnObject -ExportRawTemplate
+            # }
+            # # For subscriptions and Management Groups, export all policy/policyset/policyassignments at scope in one file
+            # if ($scope.Type -in 'subscriptions', 'managementgroups') {
+            #     # Get statefile from scope
+            #     $parametersJson = Get-Content -Path $scope.statepath | ConvertFrom-Json -Depth 100
+            #     # Create property bag and add resources at scope
+            #     $propertyBag = [ordered]@{
+            #         'policyDefinitions'    = @($serializedPolicyDefinitionsInAzure)
+            #         'policySetDefinitions' = @($serializedPolicySetDefinitionsInAzure)
+            #         'policyAssignments'    = @($serializedPolicyAssignmentInAzure)
+            #         'roleDefinitions'      = $null
+            #         'roleAssignments'      = $null
+            #     }
+            #     # Add property bag to parameters json
+            #     $parametersJson.parameters.input.value | Add-Member -Name 'properties' -Type NoteProperty -Value $propertyBag -force
+            #     # Export state file with properties at scope
+            #     ConvertTo-AzOpsState -Resource $parametersJson -ExportPath $scope.statepath -ExportRawTemplate
+            # }
         }
 
         # TEMPORARILY DISABLED
