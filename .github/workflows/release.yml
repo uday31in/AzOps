@@ -16,6 +16,6 @@ jobs:
         username: system
         password: ${{ secrets.GITHUB_TOKEN  }}
         registry: docker.pkg.github.com
-        repository: ${{env.repository}}/${{ github.event.release.tag_name }}
+        repository: ${{env.repository}}
         add_git_labels: true
         tags: v1 , ${{ github.sha }}
