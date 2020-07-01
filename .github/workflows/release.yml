@@ -16,6 +16,6 @@ jobs:
         username: system
         password: ${{ secrets.GITHUB_TOKEN  }}
         registry: docker.pkg.github.com
-        repository: ${{env.repository}}
+        repository: ${{env.repository}}/azops
         add_git_labels: true
-        tags: v1 , ${{ github.sha }}
+        tags: ${{ github.event.release.tag_name }} , ${{ github.sha }}
