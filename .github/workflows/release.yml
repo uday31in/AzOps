@@ -1,6 +1,5 @@
 name: "Build Container Image"
 on:
-  push:
   release:
     types: [created]
 jobs:
@@ -9,16 +8,13 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
-    - name: tag name
-      run:  |
-        echo ${{ github.event}}
     - name: build_push
       uses: docker/build-push-action@v1
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
+        username: system
         password: ${{ secrets.GITHUB_TOKEN  }}
         registry: docker.pkg.github.com
-        repository: uday31in/azops/${{ github.event.release.tag_name }}
+        repository: ${{github.repository}}/${{ github.event.release.tag_name }}
         tag_with_ref: true
         tag_with_sha: true
         add_git_labels: true
