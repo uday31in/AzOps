@@ -7,6 +7,9 @@ jobs:
   build_push:
     runs-on: ubuntu-latest
     steps:
+    - name: tag name
+      run:  echo ${{ github.event.release.tag_name }}
+    - name: build_push
     - uses: actions/checkout@v2
     - uses: docker/build-push-action@v1
       with:
