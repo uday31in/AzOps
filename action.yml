@@ -7,7 +7,7 @@ inputs:
     required: true
 runs:
   using: "docker"
-  image: "dcoker://github/uday31in/azops/azops:0.1.5"
+  image: "dcoker://uday31in/azops:0.1.5"
   args:
   - 'bzz'
 branding:
