@@ -11,7 +11,7 @@ jobs:
     - uses: docker/build-push-action@v1
       with:
         registry: docker.pkg.github.com
-        repository: ${{ github.ref }}
+        repository: uday31in/azops/${{ github.ref }}
         tag_with_ref: true
         tag_with_sha: true
         add_git_labels: true
