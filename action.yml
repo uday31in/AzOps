@@ -7,7 +7,7 @@ inputs:
     required: true
 runs:
   using: "docker"
-  image: "dcoker://uday31in/azops:0.1.5"
+  image: "docker://uday31in/azops:0.1.5"
 branding:
   icon: 'sunrise'
   color: 'green'
