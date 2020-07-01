@@ -93,6 +93,3 @@ function Initialization {
     }
 
 }
-
-Logging
-Initialization
