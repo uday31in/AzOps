@@ -1,4 +1,4 @@
-name: "Update Branch Tags"
+name: "Update Branch Specific Values"
 on:
   create:
 
@@ -13,6 +13,8 @@ jobs:
       run: echo "${BRANCH_NAME}"
     - name: pwd
       run: pwd
+    - name: ls
+      run: ls -alH
     - name: Branch Name
       run: |
           echo "Branch Name $GITHUB_REF"
