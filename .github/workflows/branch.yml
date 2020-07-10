@@ -14,7 +14,7 @@ jobs:
     - name: pwd
       run: pwd
     - name: ls
-      run: ls -alH
+      run: ls $GITHUB_WORKSPACE -alH
     - name: Branch Name
       run: |
           echo "Branch Name $GITHUB_REF"
