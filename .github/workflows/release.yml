@@ -49,28 +49,25 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
-    - name: Extract branch name
+    - name: Extract Tag name
       shell: bash
-      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
-    - name: Extract branch version
-      shell: bash
-      run: echo "::set-env name=BRANCH_VERSION::$(echo ${GITHUB_REF#refs/heads/release/v} | sed 's/\//_/g')"
+      run: echo "::set-env name=TAG_NAME::${GITHUB_REF##*/}"
     - name: Branch Name
-      run: echo "${BRANCH_NAME}"
+      run: echo "${TAG_NAME}"
     - name: Branch Version
       run: echo "${BRANCH_VERSION}"
     - name: Updating template/template.json
       run: |
-          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF/template|" template/template.json
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$TAG_NAME/template|" template/template.json
     - name: Updating template/tenant.json
       run: |
-          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF/template|" template/tenant.json
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$TAG_NAME/template|" template/tenant.json
     - name: Updating action.yml
       run: |
-          sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$GITHUB_REF|" action.yml
+          sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$TAG_NAME|" action.yml
     - name: Updating AzOps.psd1
       run: |
-          sed -i "s|ModuleVersion     = '0.0'|ModuleVersion     = '$GITHUB_REF'|" src/AzOps.psd1
+          sed -i "s|ModuleVersion     = '0.0'|ModuleVersion     = '$TAG_NAME'|" src/AzOps.psd1
     - name: Setup Git
       run: |
           git config --global user.email release-commit@noreply.com
@@ -80,7 +77,7 @@ jobs:
           git add . && git commit -m 'System commit'
     - name: push commit
       run: |
-          git push origin $GITHUB_REF
+          git push origin $TAG_NAME
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
