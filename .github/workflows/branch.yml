@@ -20,6 +20,10 @@ jobs:
     - name: Branch Name
       run: |
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$BRANCH_NAME/template|" template/template.json
+    - name: Setup Git
+      run: |
+          git config --global user.email system@noreply.com
+          git config --global user.name system
     - name: Add Changes
       run: |
           git add . && git commit -m 'System commit'
