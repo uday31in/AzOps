@@ -8,6 +8,8 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
+    - name: GitHub context
+      run: echo "$GITHUB_CONTEXT"
     - name: Extract branch name
       shell: bash
       run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
@@ -19,5 +21,4 @@ jobs:
       run: ls $GITHUB_WORKSPACE -alH
     - name: Branch Name
       run: |
-          echo "Branch Name $GITHUB_REF"
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$BRANCH_NAME/template|" template/template.json
