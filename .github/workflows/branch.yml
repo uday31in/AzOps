@@ -1,0 +1,12 @@
+name: "Update Branch Tags"
+on:
+  create:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check whether push docker image to repository
+        run: |
+            echo "Branch Name $GITHUB_REF"
+            sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$GITHUB_REF/template|" template/template.json
