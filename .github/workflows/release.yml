@@ -49,6 +49,16 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
+    - name: Extract branch name
+      shell: bash
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+    - name: Extract branch version
+      shell: bash
+      run: echo "::set-env name=BRANCH_VERSION::$(echo ${GITHUB_REF#refs/heads/release/v} | sed 's/\//_/g')"
+    - name: Branch Name
+      run: echo "${BRANCH_NAME}"
+    - name: Branch Version
+      run: echo "${BRANCH_VERSION}"
     - name: Updating template/template.json
       run: |
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF/template|" template/template.json
