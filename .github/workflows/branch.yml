@@ -19,7 +19,7 @@ jobs:
       run: echo "${BRANCH_NAME}"
     - name: Branch Name
       run: |
-          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$BRANCH_NAME/template|" template/template.json
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template|" template/template.json
     - name: Setup Git
       run: |
           git config --global user.email system@noreply.com
