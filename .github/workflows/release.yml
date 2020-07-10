@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - release/*
   workflow_dispatch:
     inputs:
       action:
@@ -50,6 +49,28 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
+    - name: Updating template/template.json
+      run: |
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF/template|" template/template.json
+    - name: Updating template/tenant.json
+      run: |
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF/template|" template/tenant.json
+    - name: Updating action.yml
+      run: |
+          sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$GITHUB_REF|" action.yml
+    - name: Updating AzOps.psd1
+      run: |
+          sed -i "s|ModuleVersion     = '0.0'|ModuleVersion     = '$GITHUB_REF'|" src/AzOps.psd1
+    - name: Setup Git
+      run: |
+          git config --global user.email release-commit@noreply.com
+          git config --global user.name system
+    - name: Add Changes
+      run: |
+          git add . && git commit -m 'System commit'
+    - name: push commit
+      run: |
+          git push origin $GITHUB_REF
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
