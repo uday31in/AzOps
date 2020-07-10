@@ -8,17 +8,21 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
     - name: GitHub context
       run: echo "$GITHUB_CONTEXT"
     - name: Extract branch name
       shell: bash
       run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
-    - name: Test
+    - name: Branch Name
       run: echo "${BRANCH_NAME}"
-    - name: pwd
-      run: pwd
-    - name: ls
-      run: ls $GITHUB_WORKSPACE -alH
     - name: Branch Name
       run: |
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$BRANCH_NAME/template|" template/template.json
+    - name: Add Changes
+      run: |
+          git add . && git commit -m 'System commit'
+    - name: push commit
+      run: |
+          git push origin GITHUB_HEAD_REF
