@@ -6,7 +6,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check whether push docker image to repository
-        run: |
-            echo "Branch Name $GITHUB_REF"
-            sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$GITHUB_REF/template|" template/template.json
+    - name: Extract branch name
+      shell: bash
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+    - name: Test
+      run: echo "${BRANCH_NAME}"
+    - name: pwd
+      run: pwd
+    - name: Branch Name
+      run: |
+          echo "Branch Name $GITHUB_REF"
+          sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/Azure/AzOps/$BRANCH_NAME/template|" template/template.json
