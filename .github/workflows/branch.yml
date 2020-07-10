@@ -1,4 +1,4 @@
-name: "Update Branch Specific Values"
+name: "Update Branch Values"
 on:
   create:
 
@@ -29,4 +29,4 @@ jobs:
           git add . && git commit -m 'System commit'
     - name: push commit
       run: |
-          git push origin GITHUB_HEAD_REF
+          git push origin $BRANCH_NAME
