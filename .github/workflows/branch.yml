@@ -75,14 +75,6 @@ jobs:
     - name: push commit
       run: |
           git push origin $BRANCH_NAME
-
-  build_push:
-    needs: [build, build_new_commit]
-    if: github.event_name == 'push' && needs.build.outputs.pushtodockerregistry == 'true'
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v2
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
