@@ -18,7 +18,7 @@ jobs:
 
   build_new_commit:
     needs: [build]
-    if: needs.build.outputs.pushtodockerregistry == 'true' && github.event.release.tag_name == ''
+    if: ${{needs.build.outputs.pushtodockerregistry == 'true' && github.event.release.tag_name == ''}}
     runs-on: ubuntu-latest
     steps:
     - name: checkout
