@@ -18,4 +18,4 @@ COPY . /action
 ENV AzOpsMainTemplate='/action/template/template.json'
 ENV AzOpsStateConfig='/action/src/AzOpsStateConfig.json'
 
-# ENTRYPOINT ["pwsh", "/action/entrypoint.ps1"]
+ENTRYPOINT ["pwsh", "/action/entrypoint.ps1"]
