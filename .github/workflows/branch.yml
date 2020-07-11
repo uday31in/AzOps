@@ -43,8 +43,8 @@ jobs:
           fi
     - name: Setup Git
       run: |
-          git config --global user.email release-commit@noreply.com
-          git config --global user.name system
+          git config --global user.email new-branch-commit@noreply.com
+          git config --global user.name new-branch-commit
     - name: Add Changes
       run: |
           git add . && git commit -m 'System commit'
