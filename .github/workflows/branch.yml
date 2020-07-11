@@ -29,20 +29,20 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - name: Extract branch name
       shell: bash
-      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||')"
     - name: Branch Name
       run: echo "${BRANCH_NAME}"
 
     - name: Extract Container name
       shell: bash
-      run: echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')"
+      run: echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/\//-/g')"
     - name: Container Name
       run: echo "${CONTAINER_NAME}"
 
     - name: Extract branch version
       shell: bash
       run: |
-        echo "::set-env name=BRANCH_VERSION:: $(echo ${GITHUB_REF#refs/heads/} | sed 's/[^0-9.]*//g')"
+        echo "::set-env name=BRANCH_VERSION:: $(echo ${GITHUB_REF} | sed -e 's|refs/heads/||;s|refs/tags/||' | sed 's/[^0-9.]*//g')"
     - name: Branch Version
       run: echo "${BRANCH_VERSION}"
 
