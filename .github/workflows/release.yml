@@ -2,9 +2,10 @@ name: "Build Container Image"
 on:
   release:
     types: [created]
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
+      - release/*
   workflow_dispatch:
     inputs:
       action:
