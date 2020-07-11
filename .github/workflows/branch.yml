@@ -21,7 +21,7 @@ jobs:
       shell: bash
       run: |
         echo "::set-env name=BRANCH_VERSION:: $(echo ${GITHUB_REF#refs/heads/} | sed 's/[^0-9.]*//g')"
-    - name: Branch Name
+    - name: Branch Version
       run: echo "${BRANCH_VERSION}"
 
     - name: Updating template/template.json
