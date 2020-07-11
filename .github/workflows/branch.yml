@@ -1,6 +1,7 @@
 name: "Create New Branch Action"
 on:
   create:
+   tag:
 jobs:
 
   build:
