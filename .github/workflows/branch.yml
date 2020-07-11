@@ -18,7 +18,7 @@ jobs:
             echo "::set-output name=pushtodockerregistry::${{ env.PUSH_TO_DOCKER_REPOSITORY != '' }}"
       - name: Tag Name
         run: |
-          echo "${{ github.event.release.tag_name }}"
+          echo "${{ github.event }}"
 
   build_new_commit:
     needs: [build]
