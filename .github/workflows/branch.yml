@@ -53,6 +53,8 @@ jobs:
       run: |
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template|" template/tenant.json
     - name: Updating action.yml
+      env:
+            PUSH_TO_DOCKER_REPOSITORY: ${{ secrets.DOCKER_REPOSITORY }}
       run: |
           sed -i "s|docker://mscet/azops:main|docker://$PUSH_TO_DOCKER_REPOSITORY:$CONTAINER_NAME|" action.yml
     - name: Updating AzOps.psd1
