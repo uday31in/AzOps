@@ -13,9 +13,15 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - name: Extract branch name
       shell: bash
-      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+      run: echo "::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/})"
     - name: Branch Name
       run: echo "${BRANCH_NAME}"
+
+    - name: Extract Container name
+      shell: bash
+      run: echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+    - name: Container Name
+      run: echo "${CONTAINER_NAME}"
 
     - name: Extract branch version
       shell: bash
@@ -32,7 +38,7 @@ jobs:
           sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$BRANCH_NAME/template|" template/tenant.json
     - name: Updating action.yml
       run: |
-          sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$BRANCH_NAME|" action.yml
+          sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$CONTAINER_NAME|" action.yml
     - name: Updating AzOps.psd1
       run: |
           if [ -z $BRANCH_VERSION ]
