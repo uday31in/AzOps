@@ -71,7 +71,7 @@ jobs:
           git config --global user.name new-branch-commit
     - name: Add Changes
       run: |
-          git add . && git commit -m 'New Branch Commit'
+          git add . && git commit -m 'New Branch Commit for version $BRANCH_VERSION'
     - name: push commit
       run: |
           git push origin $BRANCH_NAME
