@@ -50,35 +50,6 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v2
-    # - name: Extract Tag name
-    #   shell: bash
-    #   run: echo "::set-env name=TAG_NAME::${GITHUB_REF##*/}"
-    # - name: Branch Name
-    #   run: echo "${TAG_NAME}"
-    # - name: Branch Version
-    #   run: echo "${BRANCH_VERSION}"
-    # - name: Updating template/template.json
-    #   run: |
-    #       sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$TAG_NAME/template|" template/template.json
-    # - name: Updating template/tenant.json
-    #   run: |
-    #       sed -i "s|https://raw.githubusercontent.com/Azure/AzOps/main/template|https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$TAG_NAME/template|" template/tenant.json
-    # - name: Updating action.yml
-    #   run: |
-    #       sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$TAG_NAME|" action.yml
-    # - name: Updating AzOps.psd1
-    #   run: |
-    #       sed -i "s|ModuleVersion     = '0.0'|ModuleVersion     = '$TAG_NAME'|" src/AzOps.psd1
-    # - name: Setup Git
-    #   run: |
-    #       git config --global user.email release-commit@noreply.com
-    #       git config --global user.name system
-    # - name: Add Changes
-    #   run: |
-    #       git add . && git commit -m 'System commit'
-    # - name: push commit
-    #   run: |
-    #       git push origin $TAG_NAME
     - name: build_push_release
       uses: docker/build-push-action@v1
       with:
