@@ -37,7 +37,7 @@ jobs:
       run: |
           if [ -z $BRANCH_VERSION]
           then
-            echo "Not updating Brach Version. Value of Branch Version is: $BRANCH_VERSION"
+            echo "Not updating Brach Version. Value of Branch Version"
           else
             sed -i "s|ModuleVersion     = '0.0'|ModuleVersion     = '$BRANCH_VERSION'|" src/AzOps.psd1
           fi
