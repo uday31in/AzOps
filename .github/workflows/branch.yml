@@ -35,7 +35,7 @@ jobs:
           sed -i "s|docker://mscet/azops:main|docker://mscet/azops:$BRANCH_NAME|" action.yml
     - name: Updating AzOps.psd1
       run: |
-          if [ -z $BRANCH_VERSION]
+          if [ -z $BRANCH_VERSION ]
           then
             echo "Not updating Brach Version. Value of Branch Version"
           else
