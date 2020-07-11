@@ -19,7 +19,7 @@ jobs:
 
     - name: Extract Container name
       shell: bash
-      run: echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')"
+      run: echo "::set-env name=CONTAINER_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')"
     - name: Container Name
       run: echo "${CONTAINER_NAME}"
 
@@ -53,7 +53,7 @@ jobs:
           git config --global user.name new-branch-commit
     - name: Add Changes
       run: |
-          git add . && git commit -m 'System commit'
+          git add . && git commit -m 'New Branch Commit'
     - name: push commit
       run: |
           git push origin $BRANCH_NAME
