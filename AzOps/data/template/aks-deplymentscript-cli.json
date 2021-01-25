@@ -1,0 +1,30 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "input": {
+      "value": {
+        "type": "Microsoft.Resources/deploymentScripts",
+        "apiVersion": "2020-10-01",
+        "name": "runCLI",
+        "location": "northeurope",
+        "kind": "AzureCLI",
+        "identity": {
+          "type": "userAssigned",
+          "userAssignedIdentities": {
+            "/subscriptions/dddbadc2-9d31-43f4-a7e3-ae83c9da646a/resourceGroups/aks/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-uai": {}
+          }
+        },
+        "properties": {
+          "forceUpdateTag": "12",
+          "AzCliVersion": "2.9.1",
+          "timeout": "PT10M",
+          "retentionInterval": "P1D",
+          "cleanupPreference": "OnExpiration",
+          "arguments": "uday",
+          "scriptContent": "curl -LO \"https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl\";mkdir -p ~/.local/bin/kubectl; mv ./kubectl ~/.local/bin/kubectl;chmod +x ~/.local/bin/kubectl/kubectl;PATH=$PATH:~/.local/bin/kubectl;az aks get-credentials --name uday --resource-group aks --admin; cat /root/.kube/config; kubectl get pods --all-namespaces -o json"
+        }
+      }
+    }
+  }
+}

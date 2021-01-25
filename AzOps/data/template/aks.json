@@ -1,0 +1,60 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "input": {
+      "value": {
+        "apiVersion": "2020-09-01",
+        "type": "Microsoft.ContainerService/managedClusters",
+        "location": "northeurope",
+        "name": "uday",
+        "properties": {
+          "kubernetesVersion": "1.18.14",
+          "enableRBAC": true,
+          "dnsPrefix": "uday-dns",
+          "agentPoolProfiles": [
+            {
+              "name": "agentpool",
+              "osDiskSizeGB": 0,
+              "count": 1,
+              "vmSize": "Standard_B2s",
+              "osType": "Linux",
+              "storageProfile": "ManagedDisks",
+              "type": "VirtualMachineScaleSets",
+              "mode": "System",
+              "maxPods": 110,
+              "availabilityZones": [
+                "1",
+                "2",
+                "3"
+              ],
+              "vnetSubnetID": "/subscriptions/dddbadc2-9d31-43f4-a7e3-ae83c9da646a/resourceGroups/aks/providers/Microsoft.Network/virtualNetworks/aks-vnet/subnets/default"
+            }
+          ],
+          "networkProfile": {
+            "loadBalancerSku": "standard",
+            "networkPlugin": "azure",
+            "serviceCidr": "10.0.0.0/16",
+            "dnsServiceIP": "10.0.0.10",
+            "dockerBridgeCidr": "172.17.0.1/16"
+          },
+          "apiServerAccessProfile": {
+            "enablePrivateCluster": false
+          },
+          "addonProfiles": {
+            "httpApplicationRouting": {
+              "enabled": false
+            },
+            "azurePolicy": {
+              "enabled": true
+            }
+          }
+        },
+        "tags": {},
+        "identity": {
+          "type": "SystemAssigned"
+        }
+      }
+    }
+  }
+}

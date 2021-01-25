@@ -1,0 +1,48 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "input": {
+      "value": {
+        "type": "Microsoft.Resources/deploymentScripts",
+        "apiVersion": "2020-10-01",
+        "name": "runPowerShellInline",
+        "location": "northeurope",
+        "kind": "AzurePowerShell",
+        "identity": {
+          "type": "userAssigned",
+          "userAssignedIdentities": {
+            "/subscriptions/dddbadc2-9d31-43f4-a7e3-ae83c9da646a/resourceGroups/aks/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-uai": {}
+          }
+        },
+        "properties": {
+          "forceUpdateTag": "1",
+          "containerSettings": {
+            "containerGroupName": "mycustomaci"
+          },
+          // "storageAccountSettings": {
+          //   "storageAccountName": "myStorageAccount",
+          //   "storageAccountKey": "myKey"
+          // },
+          "azPowerShellVersion": "3.0",
+          "arguments": "-name \\\"John Dole\\\"",
+          "environmentVariables": [
+            {
+              "name": "UserName",
+              "value": "jdole"
+            },
+            {
+              "name": "Password",
+              "secureValue": "jDolePassword"
+            }
+          ],
+          "primaryScriptUri": "https://raw.githubusercontent.com/Azure/azure-docs-json-samples/master/deployment-script/deploymentscript-helloworld.ps1",
+          "supportingScriptUris": [],
+          "timeout": "PT30M",
+          "cleanupPreference": "OnSuccess",
+          "retentionInterval": "P1D"
+        }
+      }
+    }
+  }
+}
