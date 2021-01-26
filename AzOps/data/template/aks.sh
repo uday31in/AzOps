@@ -24,7 +24,7 @@ function configureKubectl()
     #get AKS credentials
     az aks get-credentials --name $AKS_CLUSTER_NAME --resource-group $AKS_CLUSTER_RESOURCE_GROUP_NAME --admin
 
-    cat /root/.kube/config;
+    #cat /root/.kube/config;
 }
 
 function runKubectlCommand()
@@ -32,7 +32,7 @@ function runKubectlCommand()
     echo "number of arguments $#"
     echo "Running Command: $*"
 
-    read -r -d '' AZ_SCRIPTS_OUTPUT_PATH <<< $($*)
+    read -r -d '' $AZ_SCRIPTS_OUTPUT_PATH <<< $($*)
     echo "result: $AZ_SCRIPTS_OUTPUT_PATH"
 }
 

@@ -21,7 +21,7 @@
                     "timeout": "PT10M",
                     "retentionInterval": "P1D",
                     "cleanupPreference": "OnExpiration",
-                    "arguments": "kubectl get pods --all-namespaces",
+                    "arguments": "kubectl get pods --all-namespaces -o json",
                     "primaryScriptUri" : "https://raw.githubusercontent.com/uday31in/AzOps/aks/AzOps/data/template/aks.sh",
                     "environmentVariables": [
                         {
