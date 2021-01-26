@@ -16,7 +16,7 @@
                     }
                 },
                 "properties": {
-                    "forceUpdateTag": "12",
+                    "forceUpdateTag": "13",
                     "AzCliVersion": "2.9.1",
                     "timeout": "PT10M",
                     "retentionInterval": "P1D",

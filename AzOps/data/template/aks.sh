@@ -32,8 +32,9 @@ function runKubectlCommand()
     echo "number of arguments $#"
     echo "Running Command: $*"
 
-    read -r -d '' $AZ_SCRIPTS_OUTPUT_PATH <<< $($*)
-    echo "result: $AZ_SCRIPTS_OUTPUT_PATH"
+    read -r -d '' $result <<< $($*)
+    echo "result: $result"
+    echo $result > $AZ_SCRIPTS_OUTPUT_PATH
 }
 
 
@@ -42,3 +43,8 @@ main() {
     runKubectlCommand "$@"
 }
 main "$@"
+
+result=$(az keyvault list); 
+echo \"arg1 is: $1\"; 
+echo \"arg2 is: $2\"; 
+",
