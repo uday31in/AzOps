@@ -5,8 +5,7 @@
       "input": {
         "value": {
             "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-            "name": "aks-uai",
-            "location": "northeurope"
+            "name": "aks-uai"
           }
       }
     }
