@@ -32,7 +32,7 @@ function runKubectlCommand()
     echo "number of arguments $#"
     echo "Running Command: $*"
 
-    read -r -d '' $result <<< $($*)
+    read -r -d '' result <<< $($*)
     echo "result: $result"
     echo $result > $AZ_SCRIPTS_OUTPUT_PATH
 }
