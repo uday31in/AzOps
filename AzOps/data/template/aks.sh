@@ -31,10 +31,12 @@ function runKubectlCommand()
 {
     echo "number of arguments $#"
     echo "Running Command: $*"
+    echo "output: $AZ_SCRIPTS_OUTPUT_PATH"
 
     read -r -d '' result <<< $($*)
     echo "result: $result"
     echo $result > $AZ_SCRIPTS_OUTPUT_PATH
+    cat $AZ_SCRIPTS_OUTPUT_PATH
 }
 
 
