@@ -27,6 +27,11 @@ function configureKubectl()
     #cat /root/.kube/config;
 }
 
+function installHelm()
+{
+   curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+}
+
 function runKubectlCommand()
 {
     echo "number of arguments $#"
@@ -42,6 +47,7 @@ function runKubectlCommand()
 
 main() {
     configureKubectl
+    installHelm
     runKubectlCommand "$@"
 }
 main "$@"
