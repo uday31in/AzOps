@@ -32,22 +32,37 @@ function installHelm()
    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 }
 
-function runKubectlCommand()
-{
-    echo "number of arguments $#"
-    echo "Running Command: $*"
-    echo "output: $AZ_SCRIPTS_OUTPUT_PATH"
-
-    read -r -d '' result <<< $($*)
-    echo "result: $result"
-    echo $result > $AZ_SCRIPTS_OUTPUT_PATH
-    cat $AZ_SCRIPTS_OUTPUT_PATH
-}
-
 
 main() {
     configureKubectl
     installHelm
-    runKubectlCommand "$@"
+    echo "calling main with $@"
+    IFS=';' read -r -a command <<< "$@"
+    echo "${#command[@]}"
+    output='{"results": []}'
+    for (( i=0; i<${#command[@]}; i++ ));
+    do
+        cmd=${command[$i]}
+        echo "Executing command: ${command[$i]}"
+        read -r -d '' result <<< $(${command[$i]})
+        echo "$result"
+        if jq -e .   >/dev/null 2>&1 <<<"$result"; then
+            #echo "Parsed JSON successfully"
+            #output is json, avoding double encoding
+            output=$(echo $output | jq    --arg i "${command[$i]}" \
+                                        --argjson r "$result" \
+                                        '.results += [{command: $i, result: $r}]')
+        else
+            echo "Failed to parse JSON, or got false/null"
+            output=$(echo $output | jq  --arg i "${command[$i]}" \
+                                        --arg r "$result" \
+                                    '.results += [{command: $i, result: $r}]')
+        fi
+    done
+    echo "-------------"
+    echo "AZ_SCRIPTS_OUTPUT_PATH: $AZ_SCRIPTS_OUTPUT_PATH"
+    echo $output
+    $output > $AZ_SCRIPTS_OUTPUT_PATH
+    cat $AZ_SCRIPTS_OUTPUT_PATH
 }
 main "$@"
