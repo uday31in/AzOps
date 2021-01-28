@@ -1,4 +1,6 @@
+
 #!/bin/bash
+set -e
 
 # if [ -z "$AKS_CLUSTER_NAME" ]; then
 #     echo "must provide AKS_CLUSTER_NAME env var"
@@ -34,11 +36,20 @@ function installHelm()
 
 
 main() {
-    #configureKubectl
-    #installHelm
+
+    if ! command -v kubectl &> /dev/null
+    then
+        configureKubectl
+    fi
+
+    if ! command -v kubectl &> /dev/null
+    then
+        installHelm
+    fi
+
     echo "calling main with $@"
     IFS=';' read -r -a command <<< "$@"
-    echo "Arguments ${#command[@]}"
+    echo "Number of commands: ${#command[@]}"
     output='{"results": []}'
     for (( i=0; i<${#command[@]}; i++ ));
     do
@@ -67,7 +78,7 @@ main() {
     echo "-------------"
     echo "AZ_SCRIPTS_OUTPUT_PATH: $AZ_SCRIPTS_OUTPUT_PATH"
     echo $output
-    $output > $AZ_SCRIPTS_OUTPUT_PATH
-    cat $AZ_SCRIPTS_OUTPUT_PATH
+    #$output > $AZ_SCRIPTS_OUTPUT_PATH
+    #cat $AZ_SCRIPTS_OUTPUT_PATH
 }
 main "$@"
