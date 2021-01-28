@@ -908,7 +908,16 @@
             "kind": "[variables('kind')]",
             "identity": "[variables('identity')]",
             "tags": "[variables('tags')]",
-            "Properties": "[variables('input').Properties]"
+            "Properties": {
+                "forceUpdateTag": "[parameters('timestamp')]",
+                "AzCliVersion": "[variables('input').Properties.AzCliVersion]",
+                "timeout": "[variables('input').Properties.timeout]",
+                "retentionInterval": "[variables('input').Properties.retentionInterval]",
+                "cleanupPreference": "[variables('input').Properties.cleanupPreference]",
+                "arguments": "[variables('input').Properties.arguments]",
+                "primaryScriptUri": "[variables('input').Properties.primaryScriptUri]",
+                "environmentVariables": "[variables('input').Properties.environmentVariables]"
+            }
         }
     ],
     "outputs": {
