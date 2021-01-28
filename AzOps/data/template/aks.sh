@@ -78,7 +78,7 @@ main() {
     echo "-------------"
     echo "AZ_SCRIPTS_OUTPUT_PATH: $AZ_SCRIPTS_OUTPUT_PATH"
     echo $output
-    #$output > $AZ_SCRIPTS_OUTPUT_PATH
+    $output > $AZ_SCRIPTS_OUTPUT_PATH
     #cat $AZ_SCRIPTS_OUTPUT_PATH
 }
 main "$@"
