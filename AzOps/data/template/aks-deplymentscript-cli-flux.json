@@ -20,7 +20,7 @@
                     "timeout": "PT10M",
                     "retentionInterval": "P1D",
                     "cleanupPreference": "OnExpiration",
-                    "arguments": "kubectl create namespace cluster-baseline-settings;kubectl create -f https://raw.githubusercontent.com/mspnp/aks-secure-baseline/main/cluster-manifests/cluster-baseline-settings/flux.yaml",
+                    "arguments": "kubectl create namespace cluster-baseline-settings",
                     "primaryScriptUri" : "https://raw.githubusercontent.com/uday31in/AzOps/aks/AzOps/data/template/aks.sh",
                     "environmentVariables": [
                         {

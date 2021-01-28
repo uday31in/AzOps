@@ -1,6 +1,6 @@
 
 #!/bin/bash
-set -e
+#set -e
 
 # if [ -z "$AKS_CLUSTER_NAME" ]; then
 #     echo "must provide AKS_CLUSTER_NAME env var"
