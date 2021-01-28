@@ -34,11 +34,11 @@ function installHelm()
 
 
 main() {
-    configureKubectl
-    installHelm
+    #configureKubectl
+    #installHelm
     echo "calling main with $@"
     IFS=';' read -r -a command <<< "$@"
-    echo "${#command[@]}"
+    echo "Arguments ${#command[@]}"
     output='{"results": []}'
     for (( i=0; i<${#command[@]}; i++ ));
     do
@@ -46,17 +46,22 @@ main() {
         echo "Executing command: ${command[$i]}"
         read -r -d '' result <<< $(${command[$i]})
         echo "$result"
-        if jq -e .   >/dev/null 2>&1 <<<"$result"; then
-            #echo "Parsed JSON successfully"
-            #output is json, avoding double encoding
-            output=$(echo $output | jq    --arg i "${command[$i]}" \
-                                        --argjson r "$result" \
+        if [ ! -z "$result" ]; then
+            if jq -e . >/dev/null 2>&1 <<<"$result"; then
+                echo "Parsed JSON successfully"
+                output=$(echo $output | jq    --arg i "${command[$i]}" \
+                                            --argjson r "$result" \
+                                            '.results += [{command: $i, result: $r}]')
+            else
+                echo "Failed to parse JSON, or got false/null"
+                output=$(echo $output | jq  --arg i "${command[$i]}" \
+                                            --arg r "$result" \
                                         '.results += [{command: $i, result: $r}]')
+            fi
         else
-            echo "Failed to parse JSON, or got false/null"
+            echo "result is null"
             output=$(echo $output | jq  --arg i "${command[$i]}" \
-                                        --arg r "$result" \
-                                    '.results += [{command: $i, result: $r}]')
+                                        '.results += [{command: $i}]')
         fi
     done
     echo "-------------"
